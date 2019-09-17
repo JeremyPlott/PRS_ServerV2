@@ -10,7 +10,6 @@ namespace PRS_ServerV2.Models {
     public partial class Products {
 
         public Products() {
-            RequestLines = new HashSet<RequestLines>();
         }
 
         public int Id { get; set; }
@@ -30,10 +29,6 @@ namespace PRS_ServerV2.Models {
         public string PhotoPath { get; set; }
         public int VendorId { get; set; }
 
-        [ForeignKey("VendorId")]
-        [InverseProperty("Products")]
         public virtual Vendors Vendor { get; set; }
-        [InverseProperty("Product")]
-        public virtual ICollection<RequestLines> RequestLines { get; set; }
     }
 }

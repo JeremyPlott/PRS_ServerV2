@@ -10,7 +10,6 @@ namespace PRS_ServerV2.Models {
     public partial class Users {
 
         public Users() {
-            Requests = new HashSet<Requests>();
         }
 
         public int Id { get; set; }
@@ -33,7 +32,6 @@ namespace PRS_ServerV2.Models {
         public bool IsReviewer { get; set; } // bool? in first file
         public bool IsAdmin { get; set; } // bool? in first file
 
-        [InverseProperty("User")]
         public virtual ICollection<Requests> Requests { get; set; }
     }
 }

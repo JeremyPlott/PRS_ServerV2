@@ -10,7 +10,6 @@ namespace PRS_ServerV2.Models {
     public partial class Vendors {
 
         public Vendors() {
-            Products = new HashSet<Products>();
         }
 
         public int Id { get; set; }
@@ -36,8 +35,5 @@ namespace PRS_ServerV2.Models {
         public string Phone { get; set; }
         [StringLength(255)]
         public string Email { get; set; }
-
-        [InverseProperty("Vendor")]
-        public virtual ICollection<Products> Products { get; set; }
     }
 }

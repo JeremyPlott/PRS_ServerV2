@@ -10,7 +10,6 @@ namespace PRS_ServerV2.Models {
     public partial class Requests {
 
         public Requests() {
-            RequestLines = new HashSet<RequestLines>();
         }
 
         public int Id { get; set; }
@@ -33,10 +32,7 @@ namespace PRS_ServerV2.Models {
         public decimal Total { get; set; }
         public int UserId { get; set; } // int? in first file
 
-        [ForeignKey("UserId")]
-        [InverseProperty("Requests")]
         public virtual Users User { get; set; }
-        [InverseProperty("Request")]
         public virtual ICollection<RequestLines> RequestLines { get; set; }
     }
 }
