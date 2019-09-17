@@ -32,7 +32,7 @@ namespace PRS_ServerV2.Models {
         public decimal Total { get; set; }
         public int UserId { get; set; } // int? in first file
 
-        public virtual Users User { get; set; }
-        public virtual ICollection<RequestLines> RequestLines { get; set; }
+        //public virtual Users User { get; set; }
+        //public virtual ICollection<RequestLines> RequestLines { get; set; }
     }
 }

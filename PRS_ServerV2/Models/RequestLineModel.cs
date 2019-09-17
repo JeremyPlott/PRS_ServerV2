@@ -14,7 +14,7 @@ namespace PRS_ServerV2.Models {
         public int ProductId { get; set; }
         public int Quantity { get; set; }
 
-        public virtual Products Product { get; set; }
-        public virtual Requests Request { get; set; }
+        //public virtual Products Product { get; set; }
+        //public virtual Requests Request { get; set; }
     }
 }

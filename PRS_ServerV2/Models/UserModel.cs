@@ -32,6 +32,6 @@ namespace PRS_ServerV2.Models {
         public bool IsReviewer { get; set; } // bool? in first file
         public bool IsAdmin { get; set; } // bool? in first file
 
-        public virtual ICollection<Requests> Requests { get; set; }
+        //public virtual ICollection<Requests> Requests { get; set; }
     }
 }
