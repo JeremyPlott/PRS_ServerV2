@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -32,6 +33,7 @@ namespace PRS_ServerV2.Models {
         public bool IsReviewer { get; set; } // bool? in first file
         public bool IsAdmin { get; set; } // bool? in first file
 
-        //public virtual ICollection<Requests> Requests { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Requests> Requests { get; set; }
     }
 }

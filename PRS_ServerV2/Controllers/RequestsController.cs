@@ -20,10 +20,72 @@ namespace PRS_ServerV2.Controllers
             _context = context;
         }
 
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
+        //                                                           ASSIGN REQUEST STATUS                                                ||
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+        public static string ReqNew = "NEW";
+        public static string ReqEdt = "EDIT";
+        public static string ReqRev = "REVIEW";
+        public static string ReqApp = "APPROVED";
+        public static string ReqDen = "DENIED";
+
+        //[HttpPut("{status}/{id}")]
+        public async Task<ActionResult<Requests>> SetStatus(string status, int id) {
+            var request = await _context.Requests.FindAsync(id);
+            if (request == null) {
+                return NotFound();
+            }
+            request.Status = status;
+            _context.SaveChanges();            
+            return NoContent(); // says that it worked
+        }
+        [HttpPut("approve/{id}")]
+        public async Task<ActionResult<Requests>> SetStatusApprove(int id) {
+            return await SetStatus(ReqApp, id);
+        }
+        [HttpPut("deny/{id}")]
+        public async Task<ActionResult<Requests>> SetStatusDeny(int id) {
+            return await SetStatus(ReqDen, id);
+        }
+        [HttpPut("review/{id}")]
+        public async Task<ActionResult<Requests>> SetStatusReview(int id) {
+            return await SetStatus(ReqRev, id);
+        }
+        [HttpPut("edit/{id}")]
+        public async Task<ActionResult<Requests>> SetStatusEdit(int id) {
+            return await SetStatus(ReqEdt, id);
+        }
+        [HttpPut("new/{id}")]
+        public async Task<ActionResult<Requests>> SetStatusNew(int id) {            
+            return await SetStatus(ReqNew, id);
+        }
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
+        //                                                           CALC RUNNING TOTAL                                                   ||
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+        private void Recalc(int id) {
+            var request = _context.Requests.Find(id);
+            if (request == null) { throw new Exception("Request Id not found"); }
+            request.Total = _context.RequestLines.Where(rl => rl.Id == id).Sum(rl => rl.Product.Price * rl.Quantity);
+            _context.SaveChanges();
+        }
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
+        //                                                           DEFAULT METHODS                                                      ||
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+        //[HttpGet("inreview/{id}")]
+        //public async Task<ActionResult<Requests>> GetRequestsInReview(int id) {
+
+        //    return await _context.Requests.Where(r => r.Id != id).ToListAsync();
+        //}
+
         // GET: api/Requests
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Requests>>> GetRequests()
-        {
+        {            
             return await _context.Requests.ToListAsync();
         }
 
@@ -37,7 +99,6 @@ namespace PRS_ServerV2.Controllers
             {
                 return NotFound();
             }
-
             return requests;
         }
 
@@ -53,7 +114,7 @@ namespace PRS_ServerV2.Controllers
             _context.Entry(requests).State = EntityState.Modified;
 
             try
-            {
+            {                
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -66,8 +127,7 @@ namespace PRS_ServerV2.Controllers
                 {
                     throw;
                 }
-            }
-
+            }            
             return NoContent();
         }
 
@@ -77,7 +137,7 @@ namespace PRS_ServerV2.Controllers
         {
             _context.Requests.Add(requests);
             await _context.SaveChangesAsync();
-
+            
             return CreatedAtAction("GetRequests", new { id = requests.Id }, requests);
         }
 
@@ -98,7 +158,7 @@ namespace PRS_ServerV2.Controllers
         }
 
         private bool RequestsExists(int id)
-        {
+        {            
             return _context.Requests.Any(e => e.Id == id);
         }
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -32,7 +33,7 @@ namespace PRS_ServerV2.Models {
         public decimal Total { get; set; }
         public int UserId { get; set; } // int? in first file
 
-        //public virtual Users User { get; set; }
-        //public virtual ICollection<RequestLines> RequestLines { get; set; }
+        public virtual Users User { get; set; }
+        public virtual ICollection<RequestLines> RequestLines { get; set; } // these virtuals will allow the controllers to access these other tables
     }
 }
