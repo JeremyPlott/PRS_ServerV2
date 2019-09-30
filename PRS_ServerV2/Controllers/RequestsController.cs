@@ -40,12 +40,24 @@ namespace PRS_ServerV2.Controllers
             _context.SaveChanges();            
             return NoContent(); // says that it worked
         }
+        public async Task<ActionResult<Requests>> AutoStatus(decimal price, int id) { // this code is untested
+            var request = await _context.Requests.FindAsync(id);
+            if (request.Total < 50) {
+                return await SetStatus(ReqApp, id);
+            } else {
+                return await SetStatus(ReqRev, id);
+            }
+        }
         [HttpPut("approve/{id}")]
         public async Task<ActionResult<Requests>> SetStatusApprove(int id) {
+            //Recalc(id); this works up here, but not below
             return await SetStatus(ReqApp, id);
         }
         [HttpPut("deny/{id}")]
         public async Task<ActionResult<Requests>> SetStatusDeny(int id) {
+            // prompt to provide rejection reason
+            // receive input
+            // set rejection reason
             return await SetStatus(ReqDen, id);
         }
         [HttpPut("review/{id}")]
@@ -65,7 +77,7 @@ namespace PRS_ServerV2.Controllers
         //                                                           CALC RUNNING TOTAL                                                   ||
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-        private void Recalc(int id) {
+        public void Recalc(int id) {
             var request = _context.Requests.Find(id);
             if (request == null) { throw new Exception("Request Id not found"); }
             request.Total = _context.RequestLines.Where(rl => rl.Id == id).Sum(rl => rl.Product.Price * rl.Quantity);
@@ -76,11 +88,14 @@ namespace PRS_ServerV2.Controllers
         //                                                           DEFAULT METHODS                                                      ||
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-        //[HttpGet("inreview/{id}")]
-        //public async Task<ActionResult<Requests>> GetRequestsInReview(int id) {
-
-        //    return await _context.Requests.Where(r => r.Id != id).ToListAsync();
-        //}
+        // shows all requests with new|review|edit status, excluding requests from current user
+        // GET: api/Requests/inreview/{id}
+        [HttpGet("inreview/{id}")]
+        public async Task<ActionResult<IEnumerable<Requests>>> GetRequestsInReview(int id) {            
+            return await _context.Requests.Where(r => r.UserId != id 
+                                                                && r.Status != "APPROVED" 
+                                                                && r.Status != "DENIED").ToListAsync();
+        }
 
         // GET: api/Requests
         [HttpGet]
@@ -94,6 +109,7 @@ namespace PRS_ServerV2.Controllers
         public async Task<ActionResult<Requests>> GetRequests(int id)
         {
             var requests = await _context.Requests.FindAsync(id);
+            Recalc(id);
 
             if (requests == null)
             {
@@ -116,6 +132,7 @@ namespace PRS_ServerV2.Controllers
             try
             {                
                 await _context.SaveChangesAsync();
+                Recalc(id);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -127,7 +144,7 @@ namespace PRS_ServerV2.Controllers
                 {
                     throw;
                 }
-            }            
+            }
             return NoContent();
         }
 
@@ -137,6 +154,7 @@ namespace PRS_ServerV2.Controllers
         {
             _context.Requests.Add(requests);
             await _context.SaveChangesAsync();
+            Recalc(requests.Id);
             
             return CreatedAtAction("GetRequests", new { id = requests.Id }, requests);
         }
@@ -153,6 +171,7 @@ namespace PRS_ServerV2.Controllers
 
             _context.Requests.Remove(requests);
             await _context.SaveChangesAsync();
+            Recalc(id);
 
             return requests;
         }

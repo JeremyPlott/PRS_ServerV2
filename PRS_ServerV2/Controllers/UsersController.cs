@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using PRS_ServerV2.Models;
 
 namespace PRS_ServerV2.Controllers
+
+    // regex for phone number ^[2-9]\d{2}-\d{3}-\d{4}$
+
+    // add an MVC controller and then generate views 
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -20,15 +24,21 @@ namespace PRS_ServerV2.Controllers
             _context = context;
         }
 
+        //private bool UniqueUsername(string username) {
+        //    var user = _context.Users.Where(u => u.Username.Equals(username));
+        //    return (user == null);               
+        //}        
+
+        // GET: api/Users/{username}/{password}
         [HttpGet("{username}/{password}")]
         public async Task<ActionResult<Users>> Login(string username, string password) {
-            var employee = await _context.Users.SingleOrDefaultAsync(e => e.Username.Equals(username) && e.Password.Equals(password));
+            var user = await _context.Users.SingleOrDefaultAsync(e => e.Username.Equals(username) && e.Password.Equals(password));
             //single or def brings back 1 entry, where clause is always a collection
-            if (employee == null) {
+            if (user == null) {
                 return NotFound();
             }
 
-            return employee;
+            return user;
         }
 
         // GET: api/Users
@@ -60,6 +70,9 @@ namespace PRS_ServerV2.Controllers
             {
                 return BadRequest();
             }
+            //if (!UniqueUsername(users.Username)) { // needs testing to see if updating an existing user will throw exception
+            //    throw new Exception("Username already exists!");
+            //}
 
             _context.Entry(users).State = EntityState.Modified;
 
@@ -86,6 +99,9 @@ namespace PRS_ServerV2.Controllers
         [HttpPost]
         public async Task<ActionResult<Users>> PostUsers(Users users)
         {
+            //if (!UniqueUsername(users.Username)) {
+            //    return NotFound();
+            //}
             _context.Users.Add(users);
             await _context.SaveChangesAsync();
 

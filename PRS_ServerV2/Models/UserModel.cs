@@ -15,7 +15,7 @@ namespace PRS_ServerV2.Models {
 
         public int Id { get; set; }
         [Required]
-        [StringLength(30)]
+        [StringLength(30)]        
         public string Username { get; set; }
         [Required]
         [StringLength(30)]

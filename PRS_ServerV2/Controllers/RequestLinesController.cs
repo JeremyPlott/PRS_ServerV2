@@ -54,7 +54,8 @@ namespace PRS_ServerV2.Controllers
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();                
+                
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -75,6 +76,9 @@ namespace PRS_ServerV2.Controllers
         [HttpPost]
         public async Task<ActionResult<RequestLines>> PostRequestLines(RequestLines requestLines)
         {
+            if (requestLines.Quantity < 0) {
+                throw new Exception("Quantity must be greater than zero"); // this code has not been tested
+            }
             _context.RequestLines.Add(requestLines);
             await _context.SaveChangesAsync();
 
