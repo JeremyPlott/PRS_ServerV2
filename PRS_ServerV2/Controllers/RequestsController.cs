@@ -81,6 +81,11 @@ namespace PRS_ServerV2.Controllers
             var request = _context.Requests.Find(id);
             if (request == null) { throw new Exception("Request Id not found"); }
             request.Total = _context.RequestLines.Where(rl => rl.Id == id).Sum(rl => rl.Product.Price * rl.Quantity);
+            if (request.Total < 50) {
+                SetStatusApprove(request.Id); // this code has not been tested
+            } else {
+                SetStatusReview(request.Id);
+            }
             _context.SaveChanges();
         }
 

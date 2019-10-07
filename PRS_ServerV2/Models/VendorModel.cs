@@ -35,5 +35,8 @@ namespace PRS_ServerV2.Models {
         public string Phone { get; set; }
         [StringLength(255)]
         public string Email { get; set; }
+
+        public virtual ICollection<Products> Products { get; set; }
+
     }
 }

@@ -79,7 +79,8 @@ namespace PRS_ServerV2.Controllers
             if (requestLines.Quantity < 0) {
                 throw new Exception("Quantity must be greater than zero"); // this code has not been tested
             }
-            _context.RequestLines.Add(requestLines);
+            
+            _context.RequestLines.Add(requestLines);            
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetRequestLines", new { id = requestLines.Id }, requestLines);

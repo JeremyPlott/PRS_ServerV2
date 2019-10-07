@@ -24,10 +24,9 @@ namespace PRS_ServerV2.Controllers
             _context = context;
         }
 
-        //private bool UniqueUsername(string username) {
-        //    var user = _context.Users.Where(u => u.Username.Equals(username));
-        //    return (user == null);               
-        //}        
+        private bool UsernameExists(string username) {
+            return _context.Users.Any(u => u.Username == username);            
+        }
 
         // GET: api/Users/{username}/{password}
         [HttpGet("{username}/{password}")]
@@ -70,9 +69,10 @@ namespace PRS_ServerV2.Controllers
             {
                 return BadRequest();
             }
-            //if (!UniqueUsername(users.Username)) { // needs testing to see if updating an existing user will throw exception
-            //    throw new Exception("Username already exists!");
-            //}
+
+            if(UsernameExists(users.Username)) {
+                throw new Exception("Username already exists!"); // this code is untested
+            }
 
             _context.Entry(users).State = EntityState.Modified;
 
@@ -99,9 +99,9 @@ namespace PRS_ServerV2.Controllers
         [HttpPost]
         public async Task<ActionResult<Users>> PostUsers(Users users)
         {
-            //if (!UniqueUsername(users.Username)) {
-            //    return NotFound();
-            //}
+            if (UsernameExists(users.Username)) {
+                throw new Exception("Username already exists!");
+            }
             _context.Users.Add(users);
             await _context.SaveChangesAsync();
 
