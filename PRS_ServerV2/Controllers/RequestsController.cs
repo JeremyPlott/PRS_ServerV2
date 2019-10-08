@@ -55,9 +55,10 @@ namespace PRS_ServerV2.Controllers
         }
         [HttpPut("deny/{id}")]
         public async Task<ActionResult<Requests>> SetStatusDeny(int id) {
-            // prompt to provide rejection reason
-            // receive input
-            // set rejection reason
+            var request = await _context.Requests.FindAsync(id);
+            if(request.RejectionReason == null) {
+                throw new Exception("Must provide rejection reason"); // this code is untested
+            }
             return await SetStatus(ReqDen, id);
         }
         [HttpPut("review/{id}")]
