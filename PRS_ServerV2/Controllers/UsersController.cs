@@ -32,7 +32,6 @@ namespace PRS_ServerV2.Controllers
         [HttpGet("{username}/{password}")]
         public async Task<ActionResult<Users>> Login(string username, string password) {
             var user = await _context.Users.SingleOrDefaultAsync(e => e.Username.Equals(username) && e.Password.Equals(password));
-            //single or def brings back 1 entry, where clause is always a collection
             if (user == null) {
                 return NotFound();
             }

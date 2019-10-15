@@ -75,7 +75,7 @@ namespace PRS_ServerV2.Controllers
         }
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
-        //                                                           CALC RUNNING TOTAL                                                   ||
+        //                                                           CUSTOM METHODS                                                       ||
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
         public void Recalc(int id) {
@@ -90,10 +90,6 @@ namespace PRS_ServerV2.Controllers
             _context.SaveChanges();
         }
 
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
-        //                                                           DEFAULT METHODS                                                      ||
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-
         // shows all requests with new|review|edit status, excluding requests from current user
         // GET: api/Requests/inreview/{id}
         [HttpGet("inreview/{id}")]
@@ -102,6 +98,27 @@ namespace PRS_ServerV2.Controllers
                                                                 && r.Status != "APPROVED" 
                                                                 && r.Status != "DENIED").ToListAsync();
         }
+
+        // POST: api/Requests/{username}/{password}
+        [HttpPost("Requests/{username}/{password}")]
+        public async Task<ActionResult<Requests>> PostRequests(Requests requests, string username, string password) {
+            var user = await _context.Users.SingleOrDefaultAsync(e => e.Username.Equals(username) && e.Password.Equals(password));
+            if (user == null) {
+                return NotFound();
+            }
+            requests.UserId = user.Id;
+            _context.Requests.Add(requests);
+            await _context.SaveChangesAsync();
+            Recalc(requests.Id);
+
+            return CreatedAtAction("GetRequests", new { id = requests.Id }, requests);
+        }
+
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
+        //                                                           DEFAULT METHODS                                                      ||
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
 
         // GET: api/Requests
         [HttpGet]
@@ -154,16 +171,16 @@ namespace PRS_ServerV2.Controllers
             return NoContent();
         }
 
-        // POST: api/Requests
-        [HttpPost]
-        public async Task<ActionResult<Requests>> PostRequests(Requests requests)
-        {
-            _context.Requests.Add(requests);
-            await _context.SaveChangesAsync();
-            Recalc(requests.Id);
+        //// POST: api/Requests
+        //[HttpPost]
+        //public async Task<ActionResult<Requests>> PostRequests(Requests requests)
+        //{
+        //    _context.Requests.Add(requests);
+        //    await _context.SaveChangesAsync();
+        //    Recalc(requests.Id);
             
-            return CreatedAtAction("GetRequests", new { id = requests.Id }, requests);
-        }
+        //    return CreatedAtAction("GetRequests", new { id = requests.Id }, requests);
+        //}
 
         // DELETE: api/Requests/5
         [HttpDelete("{id}")]

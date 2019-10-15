@@ -16,7 +16,6 @@ namespace PRS_ServerV2.Models {
         public virtual DbSet<Users> Users { get; set; }
         public virtual DbSet<Vendors> Vendors { get; set; }
 
-        /* Is any of this necessary?
          
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             if (!optionsBuilder.IsConfigured) {
@@ -32,19 +31,19 @@ namespace PRS_ServerV2.Models {
                 .HasName("PartNbr")
                 .IsUnique();
 
-                entity.HasOne(d => d.Vendor)
-                .WithMany(p => p.Products)
-                .HasForeignKey(d => d.VendorId)
-                .HasConstraintName("FK_VendorId");
+                //entity.HasOne(d => d.Vendor)
+                //.WithMany(p => p.Products)
+                //.HasForeignKey(d => d.VendorId)
+                //.HasConstraintName("FK_VendorId");
             });
 
             modelBuilder.Entity<RequestLines>(entity => {
                 entity.Property(e => e.Quantity).HasDefaultValueSql("((1))");
 
-                entity.HasOne(d => d.Product)
-                .WithMany(p => p.RequestLines)
-                .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK_ProductId");
+                //entity.HasOne(d => d.Product)
+                //.WithMany(p => p.RequestLines)
+                //.HasForeignKey(d => d.ProductId)
+                //.HasConstraintName("FK_ProductId");
 
                 entity.HasOne(d => d.Request)
                 .WithMany(p => p.RequestLines)
@@ -74,6 +73,6 @@ namespace PRS_ServerV2.Models {
                 entity.HasIndex(e => e.Code)
                 .IsUnique();
             });
-        }*/
+        }
     }
 }
