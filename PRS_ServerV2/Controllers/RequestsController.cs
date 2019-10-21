@@ -38,7 +38,7 @@ namespace PRS_ServerV2.Controllers
             }
             request.Status = status;
             Recalc(id);
-            return Ok(); // says that it worked
+            return Ok();
         }
  
 
@@ -76,9 +76,9 @@ namespace PRS_ServerV2.Controllers
             if (request == null) { throw new Exception("Request Id not found"); }
             request.Total = _context.RequestLines.Where(rl => rl.Id == id).Sum(rl => rl.Product.Price * rl.Quantity);
             if (request.Total < 50) {
-                await SetStatusApprove(request.Id); // this code has not been tested
+                request.Status = ReqApp;
             }
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         // shows all requests with new|review|edit status, excluding requests from current user
@@ -145,14 +145,14 @@ namespace PRS_ServerV2.Controllers
 
         // PUT: api/Requests/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRequests(int id, Requests requests)
+        public async Task<IActionResult> PutRequests(int id, Requests request)
         {
-            if (id != requests.Id)
+            if (id != request.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(requests).State = EntityState.Modified;
+            _context.Entry(request).State = EntityState.Modified;
 
             try
             {                
@@ -173,16 +173,15 @@ namespace PRS_ServerV2.Controllers
             return NoContent();
         }
 
-        //// POST: api/Requests
-        //[HttpPost]
-        //public async Task<ActionResult<Requests>> PostRequests(Requests requests)
-        //{
-        //    _context.Requests.Add(requests);
-        //    await _context.SaveChangesAsync();
-        //    Recalc(requests.Id);
-            
-        //    return CreatedAtAction("GetRequests", new { id = requests.Id }, requests);
-        //}
+        // POST: api/Requests
+        [HttpPost]
+        public async Task<ActionResult<Requests>> PostRequests(Requests request) {
+            _context.Requests.Add(request);
+            Recalc(request.Id);
+            //var user = _context.Users.Find(request.UserId);            
+            //request.User = user.Username;
+            return CreatedAtAction("GetRequests", new { id = request.Id }, request);
+        }
 
         // DELETE: api/Requests/5
         [HttpDelete("{id}")]

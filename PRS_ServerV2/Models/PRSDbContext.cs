@@ -54,6 +54,7 @@ namespace PRS_ServerV2.Models {
             modelBuilder.Entity<Requests>(entity => {
                 entity.Property(e => e.DeliveryMode).HasDefaultValueSql("('Pickup')");
                 entity.Property(e => e.Status).HasDefaultValueSql("('NEW')");
+                entity.Property(e => e.Total).HasDefaultValueSql("((0))");
 
                 entity.HasOne(d => d.User)
                 .WithMany(p => p.Requests)
