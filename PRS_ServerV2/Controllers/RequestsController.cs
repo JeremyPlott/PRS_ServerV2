@@ -37,20 +37,13 @@ namespace PRS_ServerV2.Controllers
                 return NotFound();
             }
             request.Status = status;
-            _context.SaveChanges();            
-            return NoContent(); // says that it worked
+            Recalc(id);
+            return Ok(); // says that it worked
         }
-        public async Task<ActionResult<Requests>> AutoStatus(decimal price, int id) { // this code is untested
-            var request = await _context.Requests.FindAsync(id);
-            if (request.Total < 50) {
-                return await SetStatus(ReqApp, id);
-            } else {
-                return await SetStatus(ReqRev, id);
-            }
-        }
+ 
+
         [HttpPut("approve/{id}")]
-        public async Task<ActionResult<Requests>> SetStatusApprove(int id) {
-            //Recalc(id); this works up here, but not below
+        public async Task<ActionResult<Requests>> SetStatusApprove(int id) {            
             return await SetStatus(ReqApp, id);
         }
         [HttpPut("deny/{id}")]
@@ -78,14 +71,12 @@ namespace PRS_ServerV2.Controllers
         //                                                           CUSTOM METHODS                                                       ||
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-        public void Recalc(int id) {
+        public async void Recalc(int id) {
             var request = _context.Requests.Find(id);
             if (request == null) { throw new Exception("Request Id not found"); }
             request.Total = _context.RequestLines.Where(rl => rl.Id == id).Sum(rl => rl.Product.Price * rl.Quantity);
             if (request.Total < 50) {
-                SetStatusApprove(request.Id); // this code has not been tested
-            } else {
-                SetStatusReview(request.Id);
+                await SetStatusApprove(request.Id); // this code has not been tested
             }
             _context.SaveChanges();
         }
@@ -99,20 +90,20 @@ namespace PRS_ServerV2.Controllers
                                                                 && r.Status != "DENIED").ToListAsync();
         }
 
-        // POST: api/Requests/{username}/{password}
-        [HttpPost("Requests/{username}/{password}")]
-        public async Task<ActionResult<Requests>> PostRequests(Requests requests, string username, string password) {
-            var user = await _context.Users.SingleOrDefaultAsync(e => e.Username.Equals(username) && e.Password.Equals(password));
-            if (user == null) {
-                return NotFound();
-            }
-            requests.UserId = user.Id;
-            _context.Requests.Add(requests);
-            await _context.SaveChangesAsync();
-            Recalc(requests.Id);
+        //// POST: api/Requests/{username}/{password}
+        //[HttpPost("Requests/{username}/{password}")]
+        //public async Task<ActionResult<Requests>> PostRequests(Requests requests, string username, string password) {
+        //    var user = await _context.Users.SingleOrDefaultAsync(e => e.Username.Equals(username) && e.Password.Equals(password));
+        //    if (user == null) {
+        //        return NotFound();
+        //    }
+        //    requests.UserId = user.Id;
+        //    _context.Requests.Add(requests);
+        //    await _context.SaveChangesAsync();
+        //    Recalc(requests.Id);
 
-            return CreatedAtAction("GetRequests", new { id = requests.Id }, requests);
-        }
+        //    return CreatedAtAction("GetRequests", new { id = requests.Id }, requests);
+        //}
 
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
@@ -120,11 +111,22 @@ namespace PRS_ServerV2.Controllers
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
+        //// GET: api/Requests
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<Requests>>> GetRequests()
+        //{            
+        //    return await _context.Requests.ToListAsync();
+        //}
+
         // GET: api/Requests
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Requests>>> GetRequests()
-        {            
-            return await _context.Requests.ToListAsync();
+        public async Task<ActionResult<IEnumerable<Requests>>> GetRequests() {
+            var requests = await _context.Requests.ToListAsync();
+            foreach(var request in requests) {
+                Recalc(request.Id);
+            }
+            _context.SaveChanges();
+            return requests;
         }
 
         // GET: api/Requests/5

@@ -15,7 +15,6 @@ namespace PRS_ServerV2.Models {
         public int Quantity { get; set; }
 
         public virtual Products Product { get; set; }
-        [JsonIgnore]
         public virtual Requests Request { get; set; } // JsonIgnore will stop infinite references. Matters which file it is placed in.
     }
 }

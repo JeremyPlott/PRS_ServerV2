@@ -20,22 +20,18 @@ namespace PRS_ServerV2.Controllers
             _context = context;
         }
 
+        //// POST: api/RequestLines/{RequestId}/{id}
+        //[HttpPost("RequestLines/{RequestId}/{id}")]
+        //public async Task<ActionResult<RequestLines>> PostRequestLines(RequestLines requestLines, int RequestId, int id) {
+        //    if (requestLines.Quantity < 0) {
+        //        throw new Exception("Quantity must be greater than zero"); // this code has not been tested. Exceptions shouldn't be thrown?
+        //    }
+        //    requestLines.RequestId = RequestId;
+        //    _context.RequestLines.Add(requestLines);
+        //    await _context.SaveChangesAsync();
 
-
-        // POST: api/RequestLines/{RequestId}/{id}
-        [HttpPost("RequestLines/{RequestId}/{id}")]
-        public async Task<ActionResult<RequestLines>> PostRequestLines(RequestLines requestLines, int RequestId, int id) {
-            if (requestLines.Quantity < 0) {
-                throw new Exception("Quantity must be greater than zero"); // this code has not been tested. Exceptions shouldn't be thrown?
-            }
-            requestLines.RequestId = RequestId;
-            _context.RequestLines.Add(requestLines);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetRequestLines", new { id = requestLines.Id }, requestLines);
-        }
-
-
+        //    return CreatedAtAction("GetRequestLines", new { id = requestLines.Id }, requestLines);
+        //}
 
         // GET: api/RequestLines
         [HttpGet]
@@ -89,19 +85,18 @@ namespace PRS_ServerV2.Controllers
             return NoContent();
         }
 
-        //// POST: api/RequestLines
-        //[HttpPost]
-        //public async Task<ActionResult<RequestLines>> PostRequestLines(RequestLines requestLines)
-        //{
-        //    if (requestLines.Quantity < 0) {
-        //        throw new Exception("Quantity must be greater than zero"); // this code has not been tested
-        //    }
-            
-        //    _context.RequestLines.Add(requestLines);            
-        //    await _context.SaveChangesAsync();
+        // POST: api/RequestLines
+        [HttpPost]
+        public async Task<ActionResult<RequestLines>> PostRequestLines(RequestLines requestLines) {
+            //if (requestLines.Quantity < 0) {
+            //    throw new Exception("Quantity must be greater than zero"); // this code has not been tested
+            //}
 
-        //    return CreatedAtAction("GetRequestLines", new { id = requestLines.Id }, requestLines);
-        //}
+            _context.RequestLines.Add(requestLines);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetRequestLines", new { id = requestLines.Id }, requestLines);
+        }
 
         // DELETE: api/RequestLines/5
         [HttpDelete("{id}")]

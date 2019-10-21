@@ -29,7 +29,7 @@ namespace PRS_ServerV2.Models {
             modelBuilder.Entity<Products>(entity => {
                 entity.HasIndex(e => e.PartNbr)
                 .HasName("PartNbr")
-                .IsUnique();
+                .IsUnique();                
 
                 //entity.HasOne(d => d.Vendor)
                 //.WithMany(p => p.Products)
