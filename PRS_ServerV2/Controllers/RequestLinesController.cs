@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PRS_ServerV2.Models;
+using PRS_ServerV2.Controllers;
 
 namespace PRS_ServerV2.Controllers
 {
@@ -88,10 +89,6 @@ namespace PRS_ServerV2.Controllers
         // POST: api/RequestLines
         [HttpPost]
         public async Task<ActionResult<RequestLines>> PostRequestLines(RequestLines requestLines) {
-            //if (requestLines.Quantity < 0) {
-            //    throw new Exception("Quantity must be greater than zero"); // this code has not been tested
-            //}
-
             _context.RequestLines.Add(requestLines);
             await _context.SaveChangesAsync();
 

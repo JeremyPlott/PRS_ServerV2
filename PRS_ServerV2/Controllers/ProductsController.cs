@@ -20,6 +20,10 @@ namespace PRS_ServerV2.Controllers
             _context = context;
         }
 
+        private bool PartNbrExists(string code) {
+            return _context.Products.Any(p => p.PartNbr == code);
+        }
+
         // GET: api/Products
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Products>>> GetProducts()
@@ -75,6 +79,9 @@ namespace PRS_ServerV2.Controllers
         [HttpPost]
         public async Task<ActionResult<Products>> PostProducts(Products products)
         {
+            if (PartNbrExists(products.PartNbr)) {
+                throw new Exception("Part number already exists!"); // this code is untested
+            }
             _context.Products.Add(products);
             await _context.SaveChangesAsync();
 

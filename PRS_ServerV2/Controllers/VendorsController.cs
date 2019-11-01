@@ -20,6 +20,10 @@ namespace PRS_ServerV2.Controllers
             _context = context;
         }
 
+        private bool CodeExists(string code) {
+            return _context.Vendors.Any(v => v.Code == code);
+        }
+
         // GET: api/Vendors
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Vendors>>> GetVendors()
@@ -50,6 +54,10 @@ namespace PRS_ServerV2.Controllers
                 return BadRequest();
             }
 
+            if (CodeExists(vendors.Code)) {
+                throw new Exception("Code already exists!"); // this code is untested
+            }
+
             _context.Entry(vendors).State = EntityState.Modified;
 
             try
@@ -75,6 +83,9 @@ namespace PRS_ServerV2.Controllers
         [HttpPost]
         public async Task<ActionResult<Vendors>> PostVendors(Vendors vendors)
         {
+            if (CodeExists(vendors.Code)) {
+                throw new Exception("Code already exists!"); // this code is untested
+            }
             _context.Vendors.Add(vendors);
             await _context.SaveChangesAsync();
 

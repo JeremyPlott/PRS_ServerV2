@@ -25,7 +25,7 @@ namespace PRS_ServerV2.Controllers
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
         public static string ReqNew = "NEW";
-        public static string ReqEdt = "EDIT";
+        //public static string ReqEdt = "EDIT";
         public static string ReqRev = "REVIEW";
         public static string ReqApp = "APPROVED";
         public static string ReqDen = "DENIED";
@@ -37,7 +37,7 @@ namespace PRS_ServerV2.Controllers
                 return NotFound();
             }
             request.Status = status;
-            Recalc(id);
+            await Recalc(id);
             return Ok();
         }
  
@@ -47,20 +47,16 @@ namespace PRS_ServerV2.Controllers
             return await SetStatus(ReqApp, id);
         }
         [HttpPut("deny/{id}")]
-        public async Task<ActionResult<Requests>> SetStatusDeny(int id) {
-            var request = await _context.Requests.FindAsync(id);
-            if(request.RejectionReason == null) {
-                throw new Exception("Must provide rejection reason"); // this code is untested
-            }
-            return await SetStatus(ReqDen, id);
+        public async Task<IActionResult> SetStatusDeny(int id, Requests request) { // will this work okay?
+            var rr = request.RejectionReason;
+            request = await _context.Requests.FindAsync(id);
+            request.RejectionReason = rr;
+            request.Status = ReqDen;
+            return await PutRequests(id, request);
         }
         [HttpPut("review/{id}")]
         public async Task<ActionResult<Requests>> SetStatusReview(int id) {
             return await SetStatus(ReqRev, id);
-        }
-        [HttpPut("edit/{id}")]
-        public async Task<ActionResult<Requests>> SetStatusEdit(int id) {
-            return await SetStatus(ReqEdt, id);
         }
         [HttpPut("new/{id}")]
         public async Task<ActionResult<Requests>> SetStatusNew(int id) {            
@@ -71,40 +67,21 @@ namespace PRS_ServerV2.Controllers
         //                                                           CUSTOM METHODS                                                       ||
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-        public async void Recalc(int id) {
+        public async Task Recalc(int id) {
             var request = _context.Requests.Find(id);
             if (request == null) { throw new Exception("Request Id not found"); }
-            request.Total = _context.RequestLines.Where(rl => rl.Id == id).Sum(rl => rl.Product.Price * rl.Quantity);
-            if (request.Total < 50) {
-                request.Status = ReqApp;
-            }
+            request.Total = _context.RequestLines.Where(rl => rl.RequestId == id).Sum(rl => rl.Product.Price * rl.Quantity);          
             await _context.SaveChangesAsync();
         }
 
         // shows all requests with new|review|edit status, excluding requests from current user
         // GET: api/Requests/inreview/{id}
-        [HttpGet("inreview/{id}")]
+        [HttpGet("review/{id}")]
         public async Task<ActionResult<IEnumerable<Requests>>> GetRequestsInReview(int id) {            
             return await _context.Requests.Where(r => r.UserId != id 
-                                                                && r.Status != "APPROVED" 
-                                                                && r.Status != "DENIED").ToListAsync();
+                                                                && r.Status != ReqApp 
+                                                                && r.Status != ReqDen).ToListAsync();
         }
-
-        //// POST: api/Requests/{username}/{password}
-        //[HttpPost("Requests/{username}/{password}")]
-        //public async Task<ActionResult<Requests>> PostRequests(Requests requests, string username, string password) {
-        //    var user = await _context.Users.SingleOrDefaultAsync(e => e.Username.Equals(username) && e.Password.Equals(password));
-        //    if (user == null) {
-        //        return NotFound();
-        //    }
-        //    requests.UserId = user.Id;
-        //    _context.Requests.Add(requests);
-        //    await _context.SaveChangesAsync();
-        //    Recalc(requests.Id);
-
-        //    return CreatedAtAction("GetRequests", new { id = requests.Id }, requests);
-        //}
-
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
         //                                                           DEFAULT METHODS                                                      ||
@@ -123,7 +100,7 @@ namespace PRS_ServerV2.Controllers
         public async Task<ActionResult<IEnumerable<Requests>>> GetRequests() {
             var requests = await _context.Requests.ToListAsync();
             foreach(var request in requests) {
-                Recalc(request.Id);
+                await Recalc(request.Id);
             }
             _context.SaveChanges();
             return requests;
@@ -134,7 +111,7 @@ namespace PRS_ServerV2.Controllers
         public async Task<ActionResult<Requests>> GetRequests(int id)
         {
             var requests = await _context.Requests.FindAsync(id);
-            Recalc(id);
+            await Recalc(id);
 
             if (requests == null)
             {
@@ -157,7 +134,16 @@ namespace PRS_ServerV2.Controllers
             try
             {                
                 await _context.SaveChangesAsync();
-                Recalc(id);
+                if(request.Status != ReqDen) {
+                    await SetStatusReview(id);
+                }
+                if (request.RequestLines.Count() > 0 && request.Status != ReqDen) {
+                    request.Status = ReqRev;
+                }
+                if (request.Total < 50 && request.Status != ReqDen) {
+                    request.Status = ReqApp;
+                }
+                await Recalc(id);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -177,9 +163,7 @@ namespace PRS_ServerV2.Controllers
         [HttpPost]
         public async Task<ActionResult<Requests>> PostRequests(Requests request) {
             _context.Requests.Add(request);
-            Recalc(request.Id);
-            //var user = _context.Users.Find(request.UserId);            
-            //request.User = user.Username;
+            await SetStatusNew(request.Id);
             return CreatedAtAction("GetRequests", new { id = request.Id }, request);
         }
 
@@ -195,7 +179,6 @@ namespace PRS_ServerV2.Controllers
 
             _context.Requests.Remove(requests);
             await _context.SaveChangesAsync();
-            Recalc(id);
 
             return requests;
         }

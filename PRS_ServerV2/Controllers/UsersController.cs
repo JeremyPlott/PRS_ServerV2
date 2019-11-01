@@ -28,6 +28,7 @@ namespace PRS_ServerV2.Controllers
             return _context.Users.Any(u => u.Username == username);            
         }
 
+
         // GET: api/Users/{username}/{password}
         [HttpGet("{username}/{password}")]
         public async Task<ActionResult<Users>> Login(string username, string password) {
@@ -69,8 +70,11 @@ namespace PRS_ServerV2.Controllers
                 return BadRequest();
             }
 
-            if(UsernameExists(users.Username)) {
-                throw new Exception("Username already exists!"); // this code is untested
+            if (UsernameExists(users.Username)) {
+                var existusr = await _context.Users.SingleOrDefaultAsync(u => u.Username.Equals(users.Username));
+                if (id != existusr.Id) {
+                    throw new Exception("Username already exists!"); // this code is untested
+                }
             }
 
             _context.Entry(users).State = EntityState.Modified;

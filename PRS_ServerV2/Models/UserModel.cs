@@ -33,7 +33,7 @@ namespace PRS_ServerV2.Models {
         public bool? IsReviewer { get; set; } // bool? in first file
         public bool? IsAdmin { get; set; } // bool? in first file
 
-        //[JsonIgnore]
+        [JsonIgnore]
         public virtual ICollection<Requests> Requests { get; set; }
     }
 }
