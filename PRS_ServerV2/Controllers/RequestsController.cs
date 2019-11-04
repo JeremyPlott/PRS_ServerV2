@@ -83,6 +83,12 @@ namespace PRS_ServerV2.Controllers
                                                                 && r.Status != ReqDen).ToListAsync();
         }
 
+        [HttpGet("mylist/{id}")]
+        public async Task<ActionResult<IEnumerable<Requests>>> GetMyRequests(int id)
+        {
+            return await _context.Requests.Where(r => r.UserId == id).ToListAsync();
+        }
+
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
         //                                                           DEFAULT METHODS                                                      ||
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//

@@ -54,10 +54,6 @@ namespace PRS_ServerV2.Controllers
                 return BadRequest();
             }
 
-            if (CodeExists(vendors.Code)) {
-                throw new Exception("Code already exists!"); // this code is untested
-            }
-
             _context.Entry(vendors).State = EntityState.Modified;
 
             try

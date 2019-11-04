@@ -70,13 +70,6 @@ namespace PRS_ServerV2.Controllers
                 return BadRequest();
             }
 
-            if (UsernameExists(users.Username)) {
-                var existusr = await _context.Users.SingleOrDefaultAsync(u => u.Username.Equals(users.Username));
-                if (id != existusr.Id) {
-                    throw new Exception("Username already exists!"); // this code is untested
-                }
-            }
-
             _context.Entry(users).State = EntityState.Modified;
 
             try
