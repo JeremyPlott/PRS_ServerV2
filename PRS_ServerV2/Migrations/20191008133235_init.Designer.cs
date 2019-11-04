@@ -47,11 +47,11 @@ namespace PRS_ServerV2.Migrations
 
                     b.Property<int>("VendorId");
 
-                    b.Property<int?>("VendorsId");
+                    b.Property<int?>("VendorId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("VendorsId");
+                    b.HasIndex("VendorId");
 
                     b.ToTable("Products");
                 });
@@ -196,7 +196,7 @@ namespace PRS_ServerV2.Migrations
                 {
                     b.HasOne("PRS_ServerV2.Models.Vendors")
                         .WithMany("Products")
-                        .HasForeignKey("VendorsId");
+                        .HasForeignKey("VendorId");
                 });
 
             modelBuilder.Entity("PRS_ServerV2.Models.RequestLines", b =>

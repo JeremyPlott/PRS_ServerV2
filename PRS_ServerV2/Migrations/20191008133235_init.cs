@@ -15,19 +15,19 @@ namespace PRS_ServerV2.Migrations
                 table: "Products");
 
             migrationBuilder.AddColumn<int>(
-                name: "VendorsId",
+                name: "VendorId",
                 table: "Products",
                 nullable: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_VendorsId",
+                name: "IX_Products_VendorId",
                 table: "Products",
-                column: "VendorsId");
+                column: "VendorId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Products_Vendors_VendorsId",
+                name: "FK_Products_Vendors_VendorId",
                 table: "Products",
-                column: "VendorsId",
+                column: "VendorId",
                 principalTable: "Vendors",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
@@ -36,15 +36,15 @@ namespace PRS_ServerV2.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Products_Vendors_VendorsId",
+                name: "FK_Products_Vendors_VendorId",
                 table: "Products");
 
             migrationBuilder.DropIndex(
-                name: "IX_Products_VendorsId",
+                name: "IX_Products_VendorId",
                 table: "Products");
 
             migrationBuilder.DropColumn(
-                name: "VendorsId",
+                name: "VendorId",
                 table: "Products");
 
             migrationBuilder.CreateIndex(

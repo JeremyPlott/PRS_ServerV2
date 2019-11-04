@@ -10,8 +10,8 @@ using PRS_ServerV2.Models;
 namespace PRS_ServerV2.Migrations
 {
     [DbContext(typeof(PRSDbContext))]
-    [Migration("20191021194215_updates")]
-    partial class updates
+    [Migration("20191104201733_justin")]
+    partial class justin
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

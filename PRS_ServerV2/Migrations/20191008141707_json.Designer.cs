@@ -27,19 +27,19 @@ namespace PRS_ServerV2.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(30);
-
                     b.Property<string>("PartNbr")
                         .IsRequired()
                         .HasMaxLength(30);
 
-                    b.Property<string>("PhotoPath")
-                        .HasMaxLength(255);
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30);
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(11,2)");
+
+                    b.Property<string>("PhotoPath")
+                        .HasMaxLength(255);
 
                     b.Property<string>("Unit")
                         .IsRequired()
@@ -47,11 +47,9 @@ namespace PRS_ServerV2.Migrations
 
                     b.Property<int>("VendorId");
 
-                    b.Property<int?>("VendorsId");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("VendorsId");
+                    b.HasIndex("VendorId");
 
                     b.ToTable("Products");
                 });
@@ -196,7 +194,7 @@ namespace PRS_ServerV2.Migrations
                 {
                     b.HasOne("PRS_ServerV2.Models.Vendors")
                         .WithMany("Products")
-                        .HasForeignKey("VendorsId");
+                        .HasForeignKey("VendorId");
                 });
 
             modelBuilder.Entity("PRS_ServerV2.Models.RequestLines", b =>
